@@ -20,7 +20,8 @@ hipotecario, deseos, y una sección privada para cada uno.
 3. En **Authentication → URL Configuration**:
    - Site URL: `https://gatogastos.vercel.app`
    - Redirect URLs: `https://gatogastos.vercel.app/**`
-4. En **Project Settings → API** copia la *Project URL* y la *anon / publishable key*.
+4. Despliega la función `supabase/functions/gg-acceso`.
+5. En **Project Settings → API** copia la *Project URL* y la *anon / publishable key*.
 
 ### 2. Vercel
 En **Settings → Environment Variables** del proyecto agrega:
@@ -36,11 +37,13 @@ La anon key es pública por diseño: lo que protege los datos son las políticas
 (solo los correos de `permitidos` pueden leer y escribir, y lo privado solo lo ve su dueño).
 
 ## Uso
-- El gato entra a la app, toca **Crear cuenta** con su correo y una clave, y confirma desde el correo.
-- En su perfil (foto arriba a la derecha) toca **Invitar a la gata**: le llega un enlace por correo,
-  entra con él y la app le pide crear su clave.
-- **¿Olvidaste tu clave?** en la pantalla de entrada envía un enlace para crear una nueva.
-- Solo los correos de `permitidos` pueden crear cuenta.
+- Se entra con usuario y clave. La cuenta del dueño se crea primero y se registra en la tabla `miembros`.
+- En su perfil (foto arriba a la derecha) el gato toca **Invitar a la gata**: la app genera un código de un solo uso,
+  válido por 7 días, que se le pasa por WhatsApp. Con él, la gata toca **Crear cuenta** y elige su usuario y clave.
+- En su perfil cada persona puede **cambiar su clave** y agregar un **correo de respaldo**.
+- **¿Olvidaste tu clave?** envía un enlace al correo de respaldo. Para enviar a cualquier dirección hay que configurar
+  un SMTP propio en Supabase (**Authentication → Emails → SMTP Settings**) y desactivar **Secure email change**.
+- La función `supabase/functions/gg-acceso` resuelve la entrada con usuario y la creación de cuentas.
 
 ## Desarrollo local
 ```bash
