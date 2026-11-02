@@ -1,0 +1,25 @@
+{
+  "buildCommand": "node build.mjs",
+  "outputDirectory": "public",
+  "framework": null,
+  "headers": [
+    {
+      "source": "/config.js",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-store"
+        }
+      ]
+    },
+    {
+      "source": "/index.html",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-cache"
+        }
+      ]
+    }
+  ]
+}
