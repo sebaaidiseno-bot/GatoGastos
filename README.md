@@ -40,9 +40,10 @@ La anon key es pública por diseño: lo que protege los datos son las políticas
 - Se entra con usuario y clave. La cuenta del dueño se crea primero y se registra en la tabla `miembros`.
 - En su perfil (foto arriba a la derecha) el gato toca **Invitar a la gata**: la app genera un código de un solo uso,
   válido por 7 días, que se le pasa por WhatsApp. Con él, la gata toca **Crear cuenta** y elige su usuario y clave.
-- En su perfil cada persona puede **cambiar su clave** y agregar un **correo de respaldo**.
-- **¿Olvidaste tu clave?** envía un enlace al correo de respaldo. Para enviar a cualquier dirección hay que configurar
-  un SMTP propio en Supabase (**Authentication → Emails → SMTP Settings**) y desactivar **Secure email change**.
+- En su perfil cada persona puede **cambiar su clave**.
+- **¿Olvidaste tu clave?** pide el usuario y envía un código de un solo uso, válido por 30 minutos, al correo del gato,
+  quien se lo pasa a quien lo pidió. Requiere una llave de Resend guardada como secreto `RESEND_API_KEY` en
+  **Supabase → Edge Functions → Secrets**, con una cuenta de Resend creada con ese mismo correo.
 - La función `supabase/functions/gg-acceso` resuelve la entrada con usuario y la creación de cuentas.
 
 ## Desarrollo local

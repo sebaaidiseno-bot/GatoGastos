@@ -102,3 +102,13 @@ begin
 end $$;
 revoke all on function public.crear_codigo() from public, anon;
 grant execute on function public.crear_codigo() to authenticated;
+
+-- 5) Códigos para recuperar la clave. Se guarda solo su huella, nunca el código.
+create table if not exists public.codigos_recuperacion (
+  user_id   uuid primary key references auth.users(id) on delete cascade,
+  hash      text not null,
+  creado_en timestamptz not null default now(),
+  expira_en timestamptz not null,
+  intentos  int not null default 0
+);
+alter table public.codigos_recuperacion enable row level security;

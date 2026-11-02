@@ -564,7 +564,6 @@ async function arrancar(user){
 /* ---------- entrada, clave e invitación ---------- */
 function traducirError(e){ const m=(e&&e.message||'').toLowerCase();
   if(e&&e.propio) return e.message;
-  if(m.includes('not_authorized')||m.includes('not authorized')) return 'Todavía no podemos enviar correos a esa dirección.';
   if(m.includes('invalid login')) return 'Correo o clave incorrectos.';
   if(m.includes('email not confirmed')) return 'Primero confirma tu cuenta con el enlace que te llegó por correo.';
   if(m.includes('database error')||m.includes('no tiene acceso')) return 'Este correo no tiene acceso a Gato Gastos.';
@@ -580,34 +579,39 @@ function authView(){
     <div class="auth-logo"><img src="${LOGO}" alt=""><h1>Gato Gastos</h1><p>Las cuentas de la casa, entre el gato y la gata.</p></div>
     ${S.authMsg?`<div class="banner">${ic('info')}<span>${esc(S.authMsg)}</span></div>`:''}
     <form id="auth-f" class="auth-card" novalidate>
-      ${m!=='olvido'?`<div class="seg" id="a-modo"><button type="button" data-v="entrar" aria-pressed="${m==='entrar'}">Entrar</button><button type="button" data-v="crear" aria-pressed="${m==='crear'}">Crear cuenta</button></div>`:`<b style="font-size:17px">Recuperar clave</b><span class="hint" style="text-align:left">Escribe tu correo de respaldo y te enviaremos un enlace para crear una clave nueva.</span>`}
-      ${m==='olvido'?`<div class="field"><label for="a-email">Correo de respaldo</label><input class="inp" id="a-email" type="email" autocomplete="email" inputmode="email" value="${esc(S.authEmail||'')}"></div>`:`<div class="field"><label for="a-email">Usuario</label><input class="inp" id="a-email" type="text" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" maxlength="254" value="${esc(S.authEmail||'')}"></div>`}
-      ${m!=='olvido'?`<div class="field"><label for="a-pass">Clave</label><input class="inp" id="a-pass" type="password" autocomplete="${m==='crear'?'new-password':'current-password'}" placeholder="${m==='crear'?'Mínimo 6 caracteres':''}"></div>`:''}
+      ${m!=='olvido'?`<div class="seg" id="a-modo"><button type="button" data-v="entrar" aria-pressed="${m==='entrar'}">Entrar</button><button type="button" data-v="crear" aria-pressed="${m==='crear'}">Crear cuenta</button></div>`:`<b style="font-size:17px">Recuperar clave</b><span class="hint" style="text-align:left">${S.olvidoPaso?'Pídele el código al gato: llegó a su Gmail. Vence en 30 minutos.':'Escribe tu usuario y enviaremos un código al Gmail del gato.'}</span>`}
+      <div class="field"><label for="a-email">Usuario</label><input class="inp" id="a-email" type="text" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" maxlength="254" value="${esc(S.authEmail||'')}"></div>
+      ${m==='olvido'&&S.olvidoPaso?`<div class="field"><label for="a-cod">Código</label><input class="inp" id="a-cod" type="text" autocomplete="off" autocapitalize="characters" autocorrect="off" spellcheck="false" maxlength="10"></div>`:''}
+      ${m!=='olvido'||S.olvidoPaso?`<div class="field"><label for="a-pass">${m==='olvido'?'Clave nueva':'Clave'}</label><input class="inp" id="a-pass" type="password" autocomplete="${m==='entrar'?'current-password':'new-password'}" placeholder="${m==='entrar'?'':'Mínimo 6 caracteres'}"></div>`:''}
       ${m==='crear'?`<div class="field"><label for="a-cod">Código de invitación</label><input class="inp" id="a-cod" type="text" autocomplete="off" autocapitalize="characters" autocorrect="off" spellcheck="false" maxlength="10"></div>`:''}
-      <button class="btn block" type="submit" id="a-ok">${m==='entrar'?'Entrar':m==='crear'?'Crear mi cuenta':'Enviar enlace'}</button>
+      <button class="btn block" type="submit" id="a-ok">${m==='entrar'?'Entrar':m==='crear'?'Crear mi cuenta':S.olvidoPaso?'Guardar clave nueva':'Enviar código'}</button>
       ${m==='entrar'?`<button type="button" class="link" data-am="olvido">¿Olvidaste tu clave?</button>`:m==='olvido'?`<button type="button" class="link" data-am="entrar">Volver</button>`:`<span class="hint">Pide tu código a quien te invitó.</span>`}
     </form></div>`;
 }
-async function acceso(body){
+async function accesoPost(body){
   const cfg=window.GG_CONFIG||{};
   const r=await fetch(cfg.url+'/functions/v1/gg-acceso',{method:'POST',headers:{'Content-Type':'application/json',apikey:cfg.anonKey,Authorization:'Bearer '+cfg.anonKey},body:JSON.stringify(body)});
   const d=await r.json().catch(()=>({}));
   if(!r.ok) throw Object.assign(new Error(d.error||'No se pudo conectar. Intenta de nuevo.'),{propio:true});
+  return d;
+}
+async function acceso(body){
+  const d=await accesoPost(body);
   const {data,error}=await SB.auth.setSession(d.session); if(error) throw error;
   return data.user;
 }
 function bindAuth(){
   const f=$('#auth-f'); if(!f) return;
-  const cambiar=v=>{ S.authEmail=$('#a-email').value; S.authModo=v; S.authMsg=''; render(); };
+  const cambiar=v=>{ S.authEmail=$('#a-email').value; S.authModo=v; S.authMsg=''; S.olvidoPaso=0; render(); };
   f.querySelectorAll('#a-modo button').forEach(b=>b.onclick=()=>cambiar(b.dataset.v));
   f.querySelectorAll('[data-am]').forEach(b=>b.onclick=()=>cambiar(b.dataset.am));
   f.onsubmit=async e=>{ e.preventDefault();
     const email=$('#a-email').value.trim().toLowerCase(), pass=($('#a-pass')||{}).value||'', m=S.authModo||'entrar'; S.authEmail=email;
-    if(!email) return toast(m==='olvido'?'Escribe tu correo de respaldo':'Escribe tu usuario');
-    if(m==='olvido' && !email.includes('@')) return toast('Escribe un correo válido');
-    const codigo=m==='crear'?$('#a-cod').value.trim():'';
-    if(m==='crear' && !codigo) return toast('Escribe tu código de invitación');
-    if(m!=='olvido' && pass.length<6) return toast('La clave debe tener al menos 6 caracteres');
+    if(!email) return toast('Escribe tu usuario');
+    const conCodigo=m==='crear'||(m==='olvido'&&S.olvidoPaso);
+    const codigo=conCodigo?$('#a-cod').value.trim():'';
+    if(conCodigo && !codigo) return toast('Escribe tu código');
+    if((m!=='olvido'||S.olvidoPaso) && pass.length<6) return toast('La clave debe tener al menos 6 caracteres');
     $('#a-ok').disabled=true;
     try{
       if(m==='entrar'){ let user;
@@ -615,8 +619,8 @@ function bindAuth(){
         else user=await acceso({accion:'entrar',usuario:email,clave:pass});
         S.authMsg=''; await arrancar(user); return; }
       if(m==='crear'){ const user=await acceso({accion:'crear',usuario:email,clave:pass,codigo}); S.authMsg=''; await arrancar(user); return; }
-      if(m==='olvido'){ const {error}=await SB.auth.resetPasswordForEmail(email,{redirectTo:location.origin}); if(error) throw error;
-        S.authMsg='Listo. Si ese es tu correo de respaldo, te llegará un enlace para crear una clave nueva.'; S.authModo='entrar'; }
+      if(m==='olvido'&&S.olvidoPaso){ const user=await acceso({accion:'restablecer',usuario:email,clave:pass,codigo}); S.authMsg=''; S.olvidoPaso=0; await arrancar(user); return; }
+      if(m==='olvido'){ await accesoPost({accion:'pedir_codigo',usuario:email}); S.authMsg=''; S.olvidoPaso=1; }
     }catch(err){ S.authMsg=traducirError(err); }
     render();
   };
@@ -633,7 +637,6 @@ function openNuevaClave(motivo){
         if(error) return toast(traducirError(error)); toast('Clave guardada'); closeSheet(); };
     });
 }
-const correoReal=u=>{ const e=(u&&u.email)||''; return e.endsWith('@sin-correo.gatogastos.vercel.app')?'':e; };
 async function invitar(){
   if(!SB) return;
   const {data:codigo,error}=await SB.rpc('crear_codigo');
@@ -644,18 +647,6 @@ async function invitar(){
     <a class="btn block" href="https://wa.me/?text=${encodeURIComponent(texto)}" target="_blank" rel="noopener">Enviar por WhatsApp</a>
     <button class="btn block soft" id="i-copiar">Copiar mensaje</button>`, sh=>{
       sh.querySelector('#i-copiar').onclick=async()=>{ try{ await navigator.clipboard.writeText(texto); toast('Mensaje copiado'); }catch(e){ toast('No se pudo copiar'); } };
-    });
-}
-function openRespaldo(){
-  openSheet(head('Correo de respaldo')+`<div class="hint" style="text-align:left">Sirve para recuperar tu clave si la olvidas. Te enviaremos un enlace para confirmarlo.</div>
-    <div class="field"><label for="r-mail">Correo</label><input class="inp" id="r-mail" type="email" autocomplete="email" inputmode="email" value="${esc(correoReal(S.user))}"></div>
-    <button class="btn block" id="r-ok">Guardar correo</button>`, sh=>{
-      sh.querySelector('#r-ok').onclick=async()=>{ const email=sh.querySelector('#r-mail').value.trim().toLowerCase();
-        if(!email.includes('@')) return toast('Escribe un correo válido');
-        const {data,error}=await SB.auth.updateUser({email},{emailRedirectTo:location.origin});
-        if(error) return toast(traducirError(error));
-        if(data&&data.user) S.user=data.user;
-        toast('Te enviamos un enlace a '+email+' para confirmarlo'); closeSheet(); };
     });
 }
 async function salir(){ try{ await SB.auth.signOut(); }catch(e){} location.reload(); }
@@ -1246,9 +1237,8 @@ function openPerfil(first){
       <input type="file" accept="image/*" id="f-foto" class="sr"><span class="hint">Toca para elegir una foto</span></div>
     <div class="field"><label for="f-nombre">Tu nombre</label><input class="inp" id="f-nombre" maxlength="24" placeholder="¿Cómo te llamas?" value="${esc(p.nombre||'')}"></div>
     <button class="btn block" id="f-ok">${first?'Empezar':'Guardar'}</button>
-    ${!first && SB ? `<div class="detail" style="gap:4px"><div><span>Tu usuario</span><b>${esc(S.miUsuario||'')}</b></div><div><span>Correo de respaldo</span><b>${esc(S.user&&S.user.new_email?S.user.new_email+' (por confirmar)':correoReal(S.user)||'Sin agregar')}</b></div></div>
+    ${!first && SB ? `<div class="detail" style="gap:4px"><div><span>Tu usuario</span><b>${esc(S.miUsuario||'')}</b></div></div>
       ${S.soyDueno && !S.hayOtro ? `<button class="btn block soft" data-act="invitar">Invitar ${aA(personas().otro)}</button>`:''}
-      <button class="btn block soft" data-act="respaldo">${correoReal(S.user)?'Cambiar':'Agregar'} correo de respaldo</button>
       <div class="row2"><button class="btn soft" data-act="clave">Cambiar clave</button><button class="btn danger" data-act="salir">Cerrar sesión</button></div>`:''}`, sh=>{
       sh.querySelector('#f-foto').onchange=e=>{ const f=e.target.files[0]; if(!f) return; const img=new Image(); const url=URL.createObjectURL(f);
         img.onload=()=>{ const s=240, cv=document.createElement('canvas'); cv.width=cv.height=s; const k=Math.min(img.width,img.height);
@@ -1265,7 +1255,7 @@ document.addEventListener('click', e=>{
   if (e.target.closest('[data-close]')) return closeSheet();
   const t=e.target.closest('[data-act]'); if(!t) return;
   const a=t.dataset.act, id=t.dataset.id;
-  ({salir:salir, invitar:()=>{ closeSheet(); setTimeout(invitar,280); }, respaldo:()=>{ closeSheet(); setTimeout(openRespaldo,280); }, clave:()=>{ closeSheet(); setTimeout(()=>openNuevaClave('cambiar'),280); }, masPozo:()=>{ S.masPozo=!S.masPozo; render(); }, fold:()=>toggleFold(t.dataset.s), deseo:()=>openDeseo(t.dataset.s,id), nuevoDeseo:()=>editDeseo(t.dataset.s,null), cumplidos:()=>openCumplidos(t.dataset.s),
+  ({salir:salir, invitar:()=>{ closeSheet(); setTimeout(invitar,280); }, clave:()=>{ closeSheet(); setTimeout(()=>openNuevaClave('cambiar'),280); }, masPozo:()=>{ S.masPozo=!S.masPozo; render(); }, fold:()=>toggleFold(t.dataset.s), deseo:()=>openDeseo(t.dataset.s,id), nuevoDeseo:()=>editDeseo(t.dataset.s,null), cumplidos:()=>openCumplidos(t.dataset.s),
     perfil:()=>openPerfil(false), saldar:openSaldar, perdonar:openPerdonar, retirar:()=>{ S.masPozo=false; render(); openRetirar(); }, terminadas:openTerminadas,
     editarCuenta:()=>{ const c=S.cuentas.find(x=>x.id===id); closeSheet(); setTimeout(()=>editCuenta(c),280); }, meta:()=>{ S.masPozo=false; render(); openMeta(); }, aportar:()=>S.meta?openAportar():openMeta(), verAportes:()=>{ S.masPozo=false; render(); openAportes(); },
     cuenta:()=>openCuenta(id), nuevaCuenta:()=>editCuenta(null), verGasto:()=>openVerGasto(id), verMov:()=>openVerMov(id),
