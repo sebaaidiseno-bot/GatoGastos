@@ -136,7 +136,11 @@ h2{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;
 .ring-v{fill:none;stroke-linecap:round;transition:stroke-dashoffset .9s cubic-bezier(.2,.8,.2,1)}
 @media (prefers-reduced-motion:reduce){.ring-v{transition:none}}
 .meta-info{display:flex;flex-direction:column;gap:6px;min-width:0}
-.meta-info .big{font-size:32px;font-weight:800;letter-spacing:-.02em;line-height:1.1}
+.mi-top{height:150px;display:flex;flex-direction:column;justify-content:space-between;min-width:0}
+.mi-lbl{font-size:14.5px;font-weight:600;color:var(--muted);line-height:1.25;padding-right:38px}
+.mi-det{display:flex;flex-direction:column;gap:1px;font-size:13.5px;color:var(--muted);line-height:1.3}
+.mi-det b{color:var(--fg);font-weight:700}
+.meta-info .big{white-space:nowrap;font-size:34px;font-weight:800;letter-spacing:-.02em;line-height:1.1}
 .meta-info .of{color:var(--muted);font-size:13.5px}
 .legend{display:flex;flex-direction:column;gap:5px;font-size:13px}
 .ring-t1{fill:none;stroke:var(--azul);opacity:.12}
@@ -796,8 +800,8 @@ function metaCard(){
   const mes=S.aportes.filter(a=>a.tipo!=='ajuste' && ym(a.fecha)===m).reduce((s,a)=>s+(a.tipo==='retiro'?-a.monto:a.monto),0);
   return `<section class="card" style="display:flex;flex-direction:column;gap:14px;position:relative">
     <div class="meta"><div class="ringcol">${ringsSvg(pt,Math.round(pt*100))}<div class="meta-tag">${esc(nombreMeta(M))}</div></div>
-      <div class="meta-info"><div class="of" style="padding-right:34px">Pie crédito hipotecario</div><div class="big num">${fmtM(total)}</div><div class="of num">de ${fmtM(M.objetivo)} · ${falta?`faltan ${fmtM(falta)}`:'¡meta cumplida!'}</div>
-        ${mes?`<div class="of num" style="color:${mes>0?'var(--ok)':'var(--danger)'};font-weight:600">${mes>0?'+':'−'}${fmtM(mes)} este mes</div>`:''}
+      <div class="meta-info"><div class="mi-top"><div class="mi-lbl">Pie crédito<br>hipotecario</div><div class="big num">${fmtM(total)}</div>
+        <div class="mi-det num"><span>de <b>${fmtM(M.objetivo)}</b></span><span>${falta?`faltan <b>${fmtM(falta)}</b>`:'¡meta cumplida!'}</span>${mes?`<span style="color:${mes>0?'var(--ok)':'var(--danger)'};font-weight:700">${mes>0?'+':'−'}${fmtM(mes)} este mes</span>`:''}</div></div>
         <button class="btn aportar" data-act="aportar">${ic('plus')}Aportar</button>
       </div></div>
     <div class="mas${S.masPozo?' on':''}"><div class="mas-menu" ${S.masPozo?'':'aria-hidden="true"'}><button class="lnk" data-act="meta" ${S.masPozo?'':'tabindex="-1"'}>${ic('ajusteL')}Editar</button><button class="lnk" data-act="verAportes" ${S.masPozo?'':'tabindex="-1"'}>${ic('trend')}Historial</button><button class="lnk rojo" data-act="retirar" ${S.masPozo?'':'tabindex="-1"'}>${ic('down')}Retirar</button></div>
