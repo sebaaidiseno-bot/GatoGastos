@@ -124,9 +124,9 @@ h2{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;
 
 /* meta */
 .card{background:var(--surface);border-radius:var(--r-lg);padding:18px}
-.meta{display:grid;grid-template-columns:150px 1fr;gap:18px;align-items:stretch}
+.meta{display:grid;grid-template-columns:136px 1fr;gap:14px;align-items:stretch}
 @media (max-width:360px){.meta{grid-template-columns:1fr;justify-items:center;text-align:center}}
-.rings{width:150px;height:150px;position:relative}
+.rings{width:136px;height:136px;position:relative}
 .rings svg{width:100%;height:100%;transform:rotate(-90deg)}
 .rings .c{position:absolute;inset:0;display:grid;place-items:center;text-align:center}
 .rings .pct{font-size:17px;font-weight:800;letter-spacing:-.02em;line-height:1}
@@ -136,11 +136,12 @@ h2{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;
 .ring-v{fill:none;stroke-linecap:round;transition:stroke-dashoffset .9s cubic-bezier(.2,.8,.2,1)}
 @media (prefers-reduced-motion:reduce){.ring-v{transition:none}}
 .meta-info{display:flex;flex-direction:column;gap:6px;min-width:0}
-.mi-top{height:150px;display:flex;flex-direction:column;justify-content:space-between;min-width:0}
-.mi-lbl{font-size:14.5px;font-weight:600;color:var(--muted);line-height:1.25;padding-right:38px}
-.mi-det{display:flex;flex-direction:column;gap:1px;font-size:13.5px;color:var(--muted);line-height:1.3}
+.mi-top{height:136px;display:flex;flex-direction:column;justify-content:space-between;min-width:0}
+.mi-lbl{font-size:12.5px;font-weight:600;color:var(--muted);line-height:36px;height:36px;margin-top:-4px;padding-right:26px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mi-1{white-space:nowrap}
+.mi-det{display:flex;flex-direction:column;gap:1px;font-size:12.5px;color:var(--muted);line-height:1.3}
 .mi-det b{color:var(--fg);font-weight:700}
-.meta-info .big{white-space:nowrap;font-size:34px;font-weight:800;letter-spacing:-.02em;line-height:1.1}
+.meta-info .big{white-space:nowrap;color:var(--azul);font-size:40px;font-weight:800;letter-spacing:-.02em;line-height:1.1}
 .meta-info .of{color:var(--muted);font-size:13.5px}
 .legend{display:flex;flex-direction:column;gap:5px;font-size:13px}
 .ring-t1{fill:none;stroke:var(--azul);opacity:.12}
@@ -192,10 +193,10 @@ a.pv-v{color:var(--azul)}
 .wishbox .item{border-color:var(--line)}
 .wishbox .item .ic{background:var(--bg)}
 .wish-foot{display:flex;justify-content:space-between;align-items:center;padding-top:6px}
-.btn.aportar{align-self:flex-start;height:40px;padding:0 18px 0 14px;font-size:15px;font-weight:800;border-radius:12px;margin-top:auto;gap:4px;background:linear-gradient(135deg,var(--azul),var(--celeste));box-shadow:0 10px 22px rgba(30,91,255,.35)}
+.btn.aportar{align-self:flex-end;height:40px;padding:0 18px 0 14px;font-size:15px;font-weight:800;border-radius:12px;margin-top:auto;gap:4px;background:linear-gradient(135deg,var(--azul),var(--celeste));box-shadow:0 10px 22px rgba(30,91,255,.35)}
 .btn.aportar svg{width:19px;height:19px;stroke-width:2.8}
-.mas{position:absolute;top:10px;right:10px;display:flex;align-items:center;gap:4px;z-index:3}
-.mas-btn{width:36px;height:36px;border-radius:50%;border:0;background:var(--bg);color:var(--muted);display:grid;place-items:center;box-shadow:0 2px 8px rgba(16,40,90,.08)}
+.mas{position:absolute;top:12px;right:12px;display:flex;align-items:center;gap:4px;z-index:3}
+.mas-btn{width:30px;height:30px;border-radius:50%;border:0;background:var(--bg);color:var(--muted);display:grid;place-items:center;box-shadow:0 2px 8px rgba(16,40,90,.08)}
 .mas-btn svg{width:20px;height:20px}
 .mas-menu{display:flex;gap:2px;background:var(--bg);border-radius:999px;padding:2px 6px;box-shadow:0 6px 18px rgba(16,40,90,.14);max-width:0;opacity:0;overflow:hidden;white-space:nowrap;transition:max-width .28s ease,opacity .2s}
 .mas.on .mas-menu{max-width:320px;opacity:1}
@@ -211,7 +212,7 @@ a.pv-v{color:var(--azul)}
 .mbtn svg{width:17px;height:17px}
 .mbtn.rojo{color:var(--danger)}
 .ringcol{display:flex;flex-direction:column;align-items:center;justify-content:space-between;gap:10px}
-.meta-tag{width:100%;height:40px;box-sizing:border-box;display:grid;place-items:center;text-align:center;background:var(--bg);border-radius:12px;padding:0 10px;font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.meta-tag{width:100%;height:40px;box-sizing:border-box;display:grid;place-items:center;text-align:center;background:transparent;border-radius:12px;padding:0 10px;font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .acts4{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
 .acts4 .btn{flex-direction:column;gap:3px;padding:10px 4px;border-radius:16px;font-size:12.5px;min-width:0}
 .acts4 .btn svg{width:20px;height:20px}
@@ -800,8 +801,8 @@ function metaCard(){
   const mes=S.aportes.filter(a=>a.tipo!=='ajuste' && ym(a.fecha)===m).reduce((s,a)=>s+(a.tipo==='retiro'?-a.monto:a.monto),0);
   return `<section class="card" style="display:flex;flex-direction:column;gap:14px;position:relative">
     <div class="meta"><div class="ringcol">${ringsSvg(pt,Math.round(pt*100))}<div class="meta-tag">${esc(nombreMeta(M))}</div></div>
-      <div class="meta-info"><div class="mi-top"><div class="mi-lbl">Pie crédito<br>hipotecario</div><div class="big num">${fmtM(total)}</div>
-        <div class="mi-det num"><span>de <b>${fmtM(M.objetivo)}</b></span><span>${falta?`faltan <b>${fmtM(falta)}</b>`:'¡meta cumplida!'}</span>${mes?`<span style="color:${mes>0?'var(--ok)':'var(--danger)'};font-weight:700">${mes>0?'+':'−'}${fmtM(mes)} este mes</span>`:''}</div></div>
+      <div class="meta-info"><div class="mi-top"><div class="mi-lbl">Pie crédito hipotecario</div><div class="big num">${fmtM(total)}</div>
+        <div class="mi-det num"><span class="mi-1">de <b>${fmtM(M.objetivo)}</b> · ${falta?`faltan <b>${fmtM(falta)}</b>`:'¡meta cumplida!'}</span>${mes?`<span style="color:${mes>0?'var(--ok)':'var(--danger)'};font-weight:700">${mes>0?'+':'−'}${fmtM(mes)} este mes</span>`:''}</div></div>
         <button class="btn aportar" data-act="aportar">${ic('plus')}Aportar</button>
       </div></div>
     <div class="mas${S.masPozo?' on':''}"><div class="mas-menu" ${S.masPozo?'':'aria-hidden="true"'}><button class="lnk" data-act="meta" ${S.masPozo?'':'tabindex="-1"'}>${ic('ajusteL')}Editar</button><button class="lnk" data-act="verAportes" ${S.masPozo?'':'tabindex="-1"'}>${ic('trend')}Historial</button><button class="lnk rojo" data-act="retirar" ${S.masPozo?'':'tabindex="-1"'}>${ic('down')}Retirar</button></div>
