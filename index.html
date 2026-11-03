@@ -311,6 +311,9 @@ a.pv-v{color:var(--azul)}
   padding:8px max(16px,env(safe-area-inset-right,0px)) calc(8px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
 .tabs-in{max-width:480px;margin:0 auto;display:grid;grid-template-columns:1fr 56px 1fr;gap:8px}
 #tab-mio{grid-column:3}
+.tabs-sum{max-width:480px;margin:0 auto 6px;display:flex;justify-content:space-between;align-items:baseline;gap:8px;font-size:12px;font-weight:600;color:var(--muted);white-space:nowrap}
+.tabs-sum .d{min-width:0;overflow:hidden;text-overflow:ellipsis}
+.tabs-sum b{font-size:13px;font-weight:800;color:var(--fg)}
 .tab{background:none;border:0;border-radius:14px;padding:13px 2px;display:flex;align-items:center;justify-content:center;white-space:nowrap;font-size:clamp(14px,4vw,15px);font-weight:700;color:var(--muted)}
 .tab[aria-selected="true"]{color:var(--azul);background:var(--azul-soft)}
 .fab{position:fixed;z-index:21;left:50%;margin-left:-28px;bottom:calc(4px + env(safe-area-inset-bottom,0px));width:56px;height:56px;border-radius:20px;border:0;background:var(--azul);color:#fff;display:grid;place-items:center;box-shadow:0 10px 26px rgba(30,91,255,.38)}
@@ -325,6 +328,8 @@ a.pv-v{color:var(--azul)}
 .sheet.on{transform:none}
 @media (prefers-reduced-motion:reduce){.sheet,.backdrop{transition:none}}
 .grab{width:40px;height:5px;border-radius:9px;background:var(--line);margin:0 auto}
+.sheet:has(>.sheet-pie){padding-bottom:0}
+.sheet-pie{position:sticky;bottom:0;z-index:1;margin:0 -20px;padding:12px 20px calc(12px + env(safe-area-inset-bottom,0px));background:var(--sheet);border-top:1px solid var(--line)}
 .sheet-h{display:flex;align-items:center;justify-content:space-between;gap:10px}
 .sheet-h h3{margin:0;font-size:19px;font-weight:800;letter-spacing:-.01em;text-wrap:balance}
 .x{background:var(--surface);border:0;width:36px;height:36px;border-radius:50%;display:grid;place-items:center;color:var(--muted)}
@@ -364,7 +369,7 @@ a.pv-v{color:var(--azul)}
 </style>
 
 <div class="app" id="app"></div>
-<nav class="tabs" aria-label="Secciones"><div class="tabs-in" role="tablist">
+<nav class="tabs" aria-label="Secciones"><div class="tabs-sum num" id="tabs-sum"></div><div class="tabs-in" role="tablist">
   <button class="tab" role="tab" id="tab-casa" data-tab="casa"></button>
   <button class="tab" role="tab" id="tab-mio" data-tab="mio"></button>
 </div></nav>
@@ -756,6 +761,12 @@ function tabs(){
   t.forEach(([k,l])=>{ const b=$('#tab-'+k); b.textContent=l; b.setAttribute('aria-selected', S.tab===k); });
   $('#fab').innerHTML=ic('plus'); $('#fab').setAttribute('aria-label', S.tab==='casa'?'Agregar gasto común':'Agregar movimiento personal');
   $('#fab').hidden = S.mode==='loading' || (S.mode==='live' && !S.perfiles[S.me]);
+  const sum=$('#tabs-sum'); sum.hidden=$('#fab').hidden;
+  if(!sum.hidden){ const k=S.tab==='mio'?S.mesPriv:ym(today());
+    const casa=S.gastos.filter(g=>ym(g.fecha)===k).reduce((n,g)=>n+miCaja(g),0);
+    const mio=[...S.movs.filter(m=>ym(m.fecha)===k),...fijosDelMes(k)].filter(m=>m.tipo!=='ingreso'&&m.pagado!==false).reduce((n,m)=>n+m.monto,0);
+    const firma=n=>(n<0?'−':'')+fmt(n);
+    sum.innerHTML=`<span class="d">Hogar ${firma(casa)} · Mías ${fmt(mio)}</span><span>Total <b>${firma(casa+mio)}</b></span>`; }
 }
 
 function casa(otro){
@@ -927,7 +938,7 @@ function openGasto(){
     <div class="field"><span class="flabel">¿Cómo se divide?</span><div class="seg" id="f-rep"><button type="button" data-v="mitad" aria-pressed="true">50 / 50</button><button type="button" data-v="otro" aria-pressed="false">Era solo del otro</button></div></div>
     <div class="hint" id="f-hint"></div>
     <div class="field"><label for="f-fecha">Fecha</label><input class="inp" type="date" id="f-fecha" value="${today()}"></div>
-    <button class="btn block" id="f-ok">Guardar gasto</button>`, sh=>{
+    <div class="sheet-pie"><button class="btn block" id="f-ok">Guardar gasto</button></div>`, sh=>{
       bindCommon(sh);
       const upd=()=>{ const n=parseAmt(sh.querySelector('#f-monto').value), w=segVal(sh,'f-who'), r=segVal(sh,'f-rep'); const c=r==='otro'?n:n/2;
         sh.querySelector('#f-hint').textContent = n? (w===S.me?`${cap(nombreReal(personas().otro))} te deberá ${fmt(c)}`:`Le deberás ${fmt(c)} ${aA(w)}`):'Se suma automáticamente al balance entre ustedes.'; };
@@ -1135,7 +1146,7 @@ function openMov(){
     <div class="field" id="f-pago-w"><span class="flabel">¿Ya lo pagaste?</span><div class="seg" id="f-pago"><button type="button" data-v="no" aria-pressed="true">Todavía no</button><button type="button" data-v="si" aria-pressed="false">Sí, ya pagué</button></div>
       <div class="hint">Se descuenta de tu disponible cuando está pagado.</div></div>
     <div class="field"><label for="f-fecha" id="f-fecha-l">Fecha</label><input class="inp" type="date" id="f-fecha" value="${today()}"></div>
-    <button class="btn block" id="f-ok">Guardar</button><div class="hint">${ic('lock','i')} Solo tú puedes ver esto.</div>`, sh=>{
+    <div class="hint">${ic('lock','i')} Solo tú puedes ver esto.</div><div class="sheet-pie"><button class="btn block" id="f-ok">Guardar</button></div>`, sh=>{
       const setRep=v=>{ sh.querySelectorAll('#f-rep button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.v===String(v))); repHint(); };
       const repHint=()=>{ const v=+segVal(sh,'f-rep'); sh.querySelector('#f-rep-h').textContent = v===1?'Se anota solo todos los meses desde la fecha que elijas.':v===3?'Se anota solo cada 3 meses desde la fecha que elijas.':'';
         sh.querySelector('#f-fecha-l').textContent = v?'Primera vez':'Fecha'; };
