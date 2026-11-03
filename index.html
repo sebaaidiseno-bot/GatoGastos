@@ -915,7 +915,7 @@ function closeSheet(){
 $('#backdrop').addEventListener('click', closeSheet);
 const head = t => `<div class="sheet-h"><h3>${t}</h3><button class="x" data-close aria-label="Cerrar">${ic('x')}</button></div>`;
 const amountField = (v='') => `<div class="amount"><span>$</span><input id="f-monto" inputmode="numeric" autocomplete="off" placeholder="0" value="${v?Number(v).toLocaleString('es-CL'):''}" aria-label="Monto"></div>`;
-const iconPicker = (sel, only) => `<div class="field"><span class="flabel">Ícono</span><div class="icons" id="f-icons">${(only?only.map(k=>[k,CAT[k]]):[...CATS]).sort((a,b)=>(b[0]===sel)-(a[0]===sel)).map(([k,l])=>`<button type="button" data-ic="${k}" aria-pressed="${k===sel}">${ic(k)}${l}</button>`).join('')}</div></div>`;
+const iconPicker = (sel, only) => { const orden=k=>k==='vicente'?0:k===sel?1:2; return `<div class="field"><span class="flabel">Ícono</span><div class="icons" id="f-icons">${(only?only.map(k=>[k,CAT[k]]):[...CATS]).sort((a,b)=>orden(a[0])-orden(b[0])).map(([k,l])=>`<button type="button" data-ic="${k}" aria-pressed="${k===sel}">${ic(k)}${l}</button>`).join('')}</div></div>`; };
 function bindCommon(sh){
   sh.querySelectorAll('.money').forEach(x=>x.addEventListener('input',()=>{ const n=parseAmt(x.value); x.value=n?n.toLocaleString('es-CL'):''; }));
   const m=sh.querySelector('#f-monto');
