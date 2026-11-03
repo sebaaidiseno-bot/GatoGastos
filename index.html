@@ -719,6 +719,8 @@ function balance(){
   // >0: el otro me debe a mí
   let n=0; for(const g of S.gastos){ n += (g.pagadoPor===S.me?1:-1)*credito(g); } return Math.round(n);
 }
+// Plata que de verdad salió (o volvió) de mi bolsillo por la casa: lo que pagué completo, menos lo que me devolvieron.
+function miCaja(g){ if(g.tipo==='perdon') return 0; if(g.tipo==='pago') return g.pagadoPor===S.me?g.monto:-g.monto; return g.pagadoPor===S.me?g.monto:0; }
 function miParte(g){ if(g.tipo==='pago'||g.tipo==='perdon') return 0; if(g.reparto==='otro') return g.pagadoPor===S.me?0:g.monto; return g.monto/2; }
 
 /* ---------- render ---------- */
@@ -853,16 +855,17 @@ function mio(){
   const ing=ms.filter(m=>m.tipo==='ingreso').reduce((s,m)=>s+m.monto,0);
   const gas=ms.filter(m=>m.tipo!=='ingreso'&&m.pagado!==false).reduce((s,m)=>s+m.monto,0);
   const porPagar=ms.filter(m=>m.tipo!=='ingreso'&&m.pagado===false).reduce((s,m)=>s+m.monto,0);
-  const casaMes=S.gastos.filter(g=>ym(g.fecha)===k).reduce((s,g)=>s+miParte(g),0);
+  const gastosMes=S.gastos.filter(g=>ym(g.fecha)===k);
+  const casaMes=gastosMes.reduce((s,g)=>s+miCaja(g),0), parteMes=gastosMes.reduce((s,g)=>s+miParte(g),0);
   const aporteMes=S.aportes.filter(a=>a.uid===S.me && a.tipo!=='ajuste' && ym(a.fecha)===k).reduce((s,a)=>s+(a.tipo==='retiro'?-a.monto:a.monto),0);
   const disp=ing-gas-casaMes-aporteMes;
   let h=`<div class="monthnav"><button data-act="mes" data-d="-1" aria-label="Mes anterior">${ic('left')}</button><b>${mesLabel(k)}</b><button data-act="mes" data-d="1" aria-label="Mes siguiente">${ic('right')}</button></div>
   <div class="banner">${ic('lock')}<span>Solo tú ves esta sección. Tu pareja no tiene acceso a estos datos.</span></div>
   <div class="sum num">
-    <div class="card wide"><span class="lbl">Disponible este mes</span><span class="val">${disp<0?'−':''}${fmt(disp)}</span><span class="lbl" style="font-weight:500">Ingresos − gastos pagados − tu parte de la casa − aporte al pie</span></div>
+    <div class="card wide"><span class="lbl">Disponible este mes</span><span class="val">${disp<0?'−':''}${fmt(disp)}</span><span class="lbl" style="font-weight:500">Ingresos − gastos pagados − pagado en la casa − aporte al pie</span></div>
     <div class="card"><span class="lbl">Ingresos</span><span class="val pos">${fmt(ing)}</span></div>
     <div class="card"><span class="lbl">Gastos pagados</span><span class="val">${fmt(gas)}</span>${porPagar?`<span class="lbl" style="font-weight:500">Por pagar: ${fmt(porPagar)}</span>`:''}</div>
-    <div class="card"><span class="lbl">Tu parte de la casa</span><span class="val">${fmt(casaMes)}</span></div>
+    <div class="card"><span class="lbl">Pagado en la casa</span><span class="val">${casaMes<0?'−':''}${fmt(casaMes)}</span>${parteMes?`<span class="lbl" style="font-weight:500">Tu parte: ${fmt(parteMes)}</span>`:''}</div>
     <div class="card"><span class="lbl">Aporte al pie</span><span class="val" style="color:var(--azul)">${aporteMes<0?'−':''}${fmt(aporteMes)}</span></div>
   </div>`;
   // categorías
