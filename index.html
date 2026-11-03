@@ -329,7 +329,10 @@ a.pv-v{color:var(--azul)}
 @media (prefers-reduced-motion:reduce){.sheet,.backdrop{transition:none}}
 .grab{width:40px;height:5px;border-radius:9px;background:var(--line);margin:0 auto}
 .sheet:has(>.sheet-pie){padding-bottom:0}
-.sheet-pie{position:sticky;bottom:0;z-index:1;margin:0 -20px;padding:12px 20px calc(12px + env(safe-area-inset-bottom,0px));background:var(--sheet);border-top:1px solid var(--line)}
+.sheet-pie{position:sticky;bottom:0;z-index:1;margin:0 -20px;padding:12px 20px calc(12px + env(safe-area-inset-bottom,0px));background:var(--sheet);border-top:1px solid var(--line);display:flex;gap:8px}
+.sheet-pie .btn{flex:1;min-width:0}
+.sheet-pie .btn.cancelar{flex:none;width:92px;padding:6px 8px;line-height:1.15;text-align:center;background:var(--surface-2);color:var(--muted);border-radius:16px;font-size:13.5px}
+.sheet-pie .btn.cancelar:active{background:var(--line)}
 .sheet-h{display:flex;align-items:center;justify-content:space-between;gap:10px}
 .sheet-h h3{margin:0;font-size:19px;font-weight:800;letter-spacing:-.01em;text-wrap:balance}
 .x{background:var(--surface);border:0;width:36px;height:36px;border-radius:50%;display:grid;place-items:center;color:var(--muted)}
@@ -345,7 +348,7 @@ a.pv-v{color:var(--azul)}
 .seg{display:flex;background:var(--surface);border-radius:14px;padding:4px;gap:4px}
 .seg button{flex:1;border:0;background:none;border-radius:11px;padding:10px 8px;font-weight:600;font-size:14px;color:var(--muted);display:flex;align-items:center;justify-content:center;gap:8px;min-width:0}
 .seg button[aria-pressed="true"]{background:var(--bg);color:var(--azul);box-shadow:0 2px 8px rgba(16,40,90,.08)}
-.icons{display:grid;grid-template-rows:repeat(2,1fr);grid-auto-flow:column;grid-auto-columns:72px;gap:8px;overflow-x:auto;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch;scrollbar-width:none;margin-inline:-20px;padding-inline:20px;scroll-padding-inline:20px}
+.icons{display:grid;grid-template-rows:repeat(3,1fr);grid-auto-flow:column;grid-auto-columns:72px;gap:8px;overflow-x:auto;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch;scrollbar-width:none;margin-inline:-20px;padding-inline:20px;scroll-padding-inline:20px}
 .icons::-webkit-scrollbar{display:none}
 .icons button{background:var(--surface);border:2px solid transparent;border-radius:14px;padding:10px 4px 8px;display:flex;flex-direction:column;align-items:center;gap:4px;font-size:11px;color:var(--muted);font-weight:600}
 .icons button svg{color:var(--azul)}
@@ -938,7 +941,7 @@ function openGasto(){
     <div class="field"><span class="flabel">¿Cómo se divide?</span><div class="seg" id="f-rep"><button type="button" data-v="mitad" aria-pressed="true">50 / 50</button><button type="button" data-v="otro" aria-pressed="false">Era solo del otro</button></div></div>
     <div class="hint" id="f-hint"></div>
     <div class="field"><label for="f-fecha">Fecha</label><input class="inp" type="date" id="f-fecha" value="${today()}"></div>
-    <div class="sheet-pie"><button class="btn block" id="f-ok">Guardar gasto</button></div>`, sh=>{
+    <div class="sheet-pie"><button type="button" class="btn cancelar" data-close>Cancelar gasto</button><button class="btn block" id="f-ok">Guardar gasto</button></div>`, sh=>{
       bindCommon(sh);
       const upd=()=>{ const n=parseAmt(sh.querySelector('#f-monto').value), w=segVal(sh,'f-who'), r=segVal(sh,'f-rep'); const c=r==='otro'?n:n/2;
         sh.querySelector('#f-hint').textContent = n? (w===S.me?`${cap(nombreReal(personas().otro))} te deberá ${fmt(c)}`:`Le deberás ${fmt(c)} ${aA(w)}`):'Se suma automáticamente al balance entre ustedes.'; };
@@ -1146,7 +1149,7 @@ function openMov(){
     <div class="field" id="f-pago-w"><span class="flabel">¿Ya lo pagaste?</span><div class="seg" id="f-pago"><button type="button" data-v="no" aria-pressed="true">Todavía no</button><button type="button" data-v="si" aria-pressed="false">Sí, ya pagué</button></div>
       <div class="hint">Se descuenta de tu disponible cuando está pagado.</div></div>
     <div class="field"><label for="f-fecha" id="f-fecha-l">Fecha</label><input class="inp" type="date" id="f-fecha" value="${today()}"></div>
-    <div class="hint">${ic('lock','i')} Solo tú puedes ver esto.</div><div class="sheet-pie"><button class="btn block" id="f-ok">Guardar</button></div>`, sh=>{
+    <div class="hint">${ic('lock','i')} Solo tú puedes ver esto.</div><div class="sheet-pie"><button type="button" class="btn cancelar" id="f-cancel" data-close>Cancelar gasto</button><button class="btn block" id="f-ok">Guardar</button></div>`, sh=>{
       const setRep=v=>{ sh.querySelectorAll('#f-rep button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.v===String(v))); repHint(); };
       const repHint=()=>{ const v=+segVal(sh,'f-rep'); sh.querySelector('#f-rep-h').textContent = v===1?'Se anota solo todos los meses desde la fecha que elijas.':v===3?'Se anota solo cada 3 meses desde la fecha que elijas.':'';
         sh.querySelector('#f-fecha-l').textContent = v?'Primera vez':'Fecha'; };
@@ -1154,7 +1157,7 @@ function openMov(){
       bindIcons(); repHint();
       sh.querySelector('#f-rep').addEventListener('change',repHint);
       sh.querySelector('#f-tipo').addEventListener('change',()=>{ const ing=segVal(sh,'f-tipo')==='ingreso';
-        sh.querySelector('#f-pago-w').hidden=ing;
+        sh.querySelector('#f-pago-w').hidden=ing; sh.querySelector('#f-cancel').textContent=ing?'Cancelar ingreso':'Cancelar gasto';
         sh.querySelector('#f-picker').innerHTML=iconPicker(ing?'sueldo':'tarjeta', ing?ING:GASTO);
         const d=sh.querySelector('#f-desc'); if(!d.value||d.dataset.auto){ d.value=ing?'Sueldo':''; d.dataset.auto=1; }
         d.placeholder = ing?'Ej: sueldo, bono, trabajo freelance':'Ej: tarjeta de crédito';
