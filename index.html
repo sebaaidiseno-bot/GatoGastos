@@ -21,8 +21,6 @@ body{margin:0;font:14px/1.4 system-ui,-apple-system,sans-serif;-webkit-text-size
 img{max-width:100%}
 [hidden]{display:none!important}
 </style>
-<script src="/config.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
 </head>
 <body>
 <style>
@@ -133,8 +131,24 @@ h2{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;
 .rings .cc{display:flex;flex-direction:column;align-items:center;gap:1px}
 .pie-casa{width:66px;height:66px;object-fit:contain;filter:drop-shadow(0 3px 4px rgba(16,40,90,.16))}
 .ring-t{fill:none;opacity:.16}
-.ring-v{fill:none;stroke-linecap:round;transition:stroke-dashoffset .9s cubic-bezier(.2,.8,.2,1)}
-@media (prefers-reduced-motion:reduce){.ring-v{transition:none}}
+.ring-v{fill:none;stroke-linecap:round}
+.rings.fanfarria{animation:ringPop .75s cubic-bezier(.3,1.5,.5,1)}
+@keyframes ringPop{0%{transform:scale(1)}35%{transform:scale(1.09);filter:drop-shadow(0 0 16px var(--celeste))}100%{transform:scale(1)}}
+.fanfarria-capa{position:fixed;width:0;height:0;z-index:30;pointer-events:none}
+.onda{position:absolute;left:-68px;top:-68px;width:136px;height:136px;box-sizing:border-box;border-radius:50%;border:4px solid var(--celeste);opacity:0;animation:onda .85s ease-out forwards}
+@keyframes onda{0%{opacity:.8;transform:scale(1)}100%{opacity:0;transform:scale(1.55)}}
+.chispa{position:absolute;width:var(--s);height:var(--s);margin:calc(var(--s) / -2);border-radius:2px;background:var(--c);opacity:0;animation:chispa 1.15s cubic-bezier(.15,.7,.3,1) var(--t) forwards}
+.chispa.r{border-radius:50%}
+@keyframes chispa{0%{opacity:1;transform:rotate(var(--a)) translateX(58px) scale(.5)}70%{opacity:1}100%{opacity:0;transform:rotate(var(--a)) translateX(var(--d)) rotate(var(--g)) scale(1)}}
+.sk{display:block;border-radius:8px;background:linear-gradient(90deg,var(--surface-2) 25%,var(--line) 50%,var(--surface-2) 75%);background-size:200% 100%;animation:sk 1.3s linear infinite}
+.sk.cl{background-image:linear-gradient(90deg,rgba(255,255,255,.2) 25%,rgba(255,255,255,.4) 50%,rgba(255,255,255,.2) 75%)}
+.sk.o{border-radius:50%}
+.sk.aro{-webkit-mask:radial-gradient(farthest-side,transparent calc(100% - 18px),#000 calc(100% - 17px));mask:radial-gradient(farthest-side,transparent calc(100% - 18px),#000 calc(100% - 17px))}
+@keyframes sk{from{background-position:200% 0}to{background-position:-200% 0}}
+.skel{display:contents}
+.app.listo{animation:apareceApp .35s ease-out}
+@keyframes apareceApp{from{opacity:0}to{opacity:1}}
+@media (prefers-reduced-motion:reduce){.sk,.app.listo{animation:none}}
 .meta-info{display:flex;flex-direction:column;gap:6px;min-width:0;container-type:inline-size}
 .mi-top{height:136px;display:flex;flex-direction:column;justify-content:space-between;min-width:0}
 .mi-lbl{font-size:12.5px;font-weight:600;color:var(--muted);line-height:36px;height:36px;margin-top:-4px;padding-right:26px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -371,16 +385,23 @@ a.pv-v{color:var(--azul)}
 .invite .t b{color:var(--fg);display:block;font-size:15px}
 </style>
 
-<div class="app" id="app"></div>
-<nav class="tabs" aria-label="Secciones"><div class="tabs-sum num" id="tabs-sum"></div><div class="tabs-in" role="tablist">
-  <button class="tab" role="tab" id="tab-casa" data-tab="casa"></button>
-  <button class="tab" role="tab" id="tab-mio" data-tab="mio"></button>
+<div class="app" id="app"><div class="skel" data-tab="casa" aria-busy="true" role="status" aria-label="Cargando"><header class="top"><div class="brand"><span class="sk" style="width:38px;height:38px;border-radius:12px"></span><span class="wm">Gato Gastos</span></div><div class="pair"><span class="sk o" style="width:34px;height:34px"></span><span class="sk o" style="width:34px;height:34px"></span></div></header>
+  <section class="bal"><div class="bal-l"><span class="sk cl" style="width:110px;height:14px;margin-bottom:10px"></span><span class="sk cl" style="width:150px;height:34px"></span></div><div class="duo"><span class="sk cl o" style="width:80px;height:80px"></span><span class="sk cl o" style="width:80px;height:80px;margin-left:-16px"></span></div></section>
+  <section class="card"><div class="meta"><div class="ringcol"><span class="sk o aro" style="width:136px;height:136px"></span></div><div class="meta-info"><span class="sk" style="width:80%;height:13px"></span><span class="sk" style="width:90%;height:32px"></span><span class="sk" style="width:70%;height:12px"></span><span class="sk" style="width:96px;height:40px;border-radius:12px;margin:auto 0 0 auto"></span></div></div></section>
+  <section class="sec"><span class="sk" style="width:150px;height:14px"></span><div class="bills"><div class="bill" style="min-height:118px"><span class="sk o" style="width:48px;height:48px"></span><span class="sk" style="width:60%;height:13px"></span><span class="sk" style="width:44%;height:11px"></span></div><div class="bill" style="min-height:118px"><span class="sk o" style="width:48px;height:48px"></span><span class="sk" style="width:60%;height:13px"></span><span class="sk" style="width:44%;height:11px"></span></div><div class="bill" style="min-height:118px"><span class="sk o" style="width:48px;height:48px"></span><span class="sk" style="width:60%;height:13px"></span><span class="sk" style="width:44%;height:11px"></span></div><div class="bill" style="min-height:118px"><span class="sk o" style="width:48px;height:48px"></span><span class="sk" style="width:60%;height:13px"></span><span class="sk" style="width:44%;height:11px"></span></div><div class="bill" style="min-height:118px"><span class="sk o" style="width:48px;height:48px"></span><span class="sk" style="width:60%;height:13px"></span><span class="sk" style="width:44%;height:11px"></span></div><div class="bill" style="min-height:118px"><span class="sk o" style="width:48px;height:48px"></span><span class="sk" style="width:60%;height:13px"></span><span class="sk" style="width:44%;height:11px"></span></div></div></section>
+  <section class="sec"><span class="sk" style="width:170px;height:14px"></span><div class="list"><div class="item"><span class="sk" style="width:42px;height:42px;border-radius:14px;flex:none"></span><span class="t"><span class="sk" style="width:60%;height:14px;margin-bottom:6px"></span><span class="sk" style="width:40%;height:11px"></span></span><span class="sk" style="width:64px;height:15px"></span></div><div class="item"><span class="sk" style="width:42px;height:42px;border-radius:14px;flex:none"></span><span class="t"><span class="sk" style="width:60%;height:14px;margin-bottom:6px"></span><span class="sk" style="width:40%;height:11px"></span></span><span class="sk" style="width:64px;height:15px"></span></div><div class="item"><span class="sk" style="width:42px;height:42px;border-radius:14px;flex:none"></span><span class="t"><span class="sk" style="width:60%;height:14px;margin-bottom:6px"></span><span class="sk" style="width:40%;height:11px"></span></span><span class="sk" style="width:64px;height:15px"></span></div></div></section>
+</div></div>
+<nav class="tabs" aria-label="Secciones"><div class="tabs-sum num" id="tabs-sum" hidden></div><div class="tabs-in" role="tablist">
+  <button class="tab" role="tab" id="tab-casa" data-tab="casa" aria-selected="true">Cuentas Hogar</button>
+  <button class="tab" role="tab" id="tab-mio" data-tab="mio" aria-selected="false">Mis cuentas</button>
 </div></nav>
-<button class="fab" id="fab" aria-label="Agregar"></button>
+<button class="fab" id="fab" aria-label="Agregar" hidden></button>
 <div class="backdrop" id="backdrop" hidden></div>
 <div class="sheet" id="sheet" role="dialog" aria-modal="true" hidden></div>
 <div class="toast" id="toast" role="status"></div>
 
+<script src="/config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
 <script>
 /* ---------- iconos ---------- */
 /* Íconos 3D: Fluent Emoji 3D de Microsoft (licencia MIT) */
@@ -734,13 +755,20 @@ function miCaja(g){ if(g.tipo==='perdon') return 0; if(g.tipo==='pago') return g
 function miParte(g){ if(g.tipo==='pago'||g.tipo==='perdon') return 0; if(g.reparto==='otro') return g.pagadoPor===S.me?0:g.monto; return g.monto/2; }
 
 /* ---------- render ---------- */
+const SK_CASA=$('#app').innerHTML, SK_MIO=`<div class="skel" data-tab="mio" aria-busy="true" role="status" aria-label="Cargando"><header class="top"><div class="brand"><span class="sk" style="width:38px;height:38px;border-radius:12px"></span><span class="wm">Gato Gastos</span></div><div class="pair"><span class="sk o" style="width:34px;height:34px"></span><span class="sk o" style="width:34px;height:34px"></span></div></header>
+  <span class="sk" style="height:46px;border-radius:999px"></span>
+  <div class="sum"><div class="card wide"><span class="sk" style="width:45%;height:13px;margin-bottom:6px"></span><span class="sk" style="width:60%;height:34px"></span></div><div class="card"><span class="sk" style="width:70%;height:12px;margin-bottom:6px"></span><span class="sk" style="width:85%;height:24px"></span></div><div class="card"><span class="sk" style="width:70%;height:12px;margin-bottom:6px"></span><span class="sk" style="width:85%;height:24px"></span></div><div class="card"><span class="sk" style="width:70%;height:12px;margin-bottom:6px"></span><span class="sk" style="width:85%;height:24px"></span></div><div class="card"><span class="sk" style="width:70%;height:12px;margin-bottom:6px"></span><span class="sk" style="width:85%;height:24px"></span></div></div>
+  <section class="sec"><span class="sk" style="width:150px;height:14px"></span><div class="list"><div class="item"><span class="sk" style="width:42px;height:42px;border-radius:14px;flex:none"></span><span class="t"><span class="sk" style="width:60%;height:14px;margin-bottom:6px"></span><span class="sk" style="width:40%;height:11px"></span></span><span class="sk" style="width:64px;height:15px"></span></div><div class="item"><span class="sk" style="width:42px;height:42px;border-radius:14px;flex:none"></span><span class="t"><span class="sk" style="width:60%;height:14px;margin-bottom:6px"></span><span class="sk" style="width:40%;height:11px"></span></span><span class="sk" style="width:64px;height:15px"></span></div><div class="item"><span class="sk" style="width:42px;height:42px;border-radius:14px;flex:none"></span><span class="t"><span class="sk" style="width:60%;height:14px;margin-bottom:6px"></span><span class="sk" style="width:40%;height:11px"></span></span><span class="sk" style="width:64px;height:15px"></span></div><div class="item"><span class="sk" style="width:42px;height:42px;border-radius:14px;flex:none"></span><span class="t"><span class="sk" style="width:60%;height:14px;margin-bottom:6px"></span><span class="sk" style="width:40%;height:11px"></span></span><span class="sk" style="width:64px;height:15px"></span></div></div></section>
+</div>`;
 function render(){
   document.querySelector('.tabs').hidden = (S.mode==='auth'||S.mode==='sinacceso');
   if (S.mode==='auth'){ $('#app').innerHTML=authView(); $('#fab').hidden=true; bindAuth(); return; }
   if (S.mode==='sinacceso'){ $('#app').innerHTML=`<div class="auth"><div class="auth-logo"><img src="${LOGO}" alt=""><h1>Gato Gastos</h1></div><div class="banner err">${ic('info')}<span>Esta cuenta no tiene acceso a esta app.</span></div><button class="btn block soft" data-act="salir">Cerrar sesión</button></div>`; $('#fab').hidden=true; return; }
+  const app=$('#app');
+  if (S.mode==='loading' && !S.err){ if(!app.querySelector(`.skel[data-tab="${S.tab}"]`)) app.innerHTML=S.tab==='casa'?SK_CASA:SK_MIO; tabs(); return; }
+  app.classList.add('listo');
   normalizar();
   const {otro}=personas();
-  const app=$('#app');
   if (S.mode==='live' && !S.perfiles[S.me]){ app.innerHTML=header()+`<div class="card" style="text-align:center;display:flex;flex-direction:column;gap:12px;align-items:center;padding:30px 20px">
       <div class="brand"><img class="logo" src="${LOGO}" alt=""><span class="wm">Gato Gastos</span></div>
       <p style="margin:0;color:var(--muted)">Las finanzas de la casa, en orden y entre dos. Crea tu perfil para empezar.</p>
@@ -750,8 +778,7 @@ function render(){
   let h=header();
   if (S.mode==='demo') h+=`<div class="banner">${ic('info')}<span>${S.sinConfig?'Vista de ejemplo: falta conectar Supabase (variables SUPABASE_URL y SUPABASE_ANON_KEY en Vercel).':'Vista de ejemplo con datos ficticios.'}</span></div>`;
   if (S.err) h+=`<div class="banner err">${ic('info')}<span>${esc(S.err)}</span></div>`;
-  if (S.mode==='loading' && !S.err) h+=`<div class="empty">Cargando…</div>`;
-  else h += S.tab==='casa' ? casa(otro) : mio();
+  h += S.tab==='casa' ? casa(otro) : mio();
   app.innerHTML=h; tabs(); animRings();
 }
 function header(){
@@ -857,13 +884,42 @@ function metaCard(){
       <button class="mas-btn" data-act="masPozo" aria-expanded="${!!S.masPozo}" aria-label="Más opciones del pie">${S.masPozo?ic('x'):ic('dots')}</button></div>
   </section>`;
 }
+const RING={val:0,meta:0,raf:0,intro:true,pozo:0};
 function ringsSvg(v,pct){
-  const r=60, L=2*Math.PI*r, off=L*(1-Math.min(1,Math.max(0,v||0)));
+  RING.meta=v||0; RING.pozo=pozo();
+  const r=60, L=2*Math.PI*r, off=L*(1-Math.min(1,Math.max(0,RING.val)));
   return `<div class="rings" role="img" aria-label="Avance de la meta ${pct||0}%"><svg viewBox="0 0 150 150"><defs><linearGradient id="rg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="var(--azul)"/><stop offset="1" stop-color="var(--celeste)"/></linearGradient></defs>
-    <circle class="ring-t1" cx="75" cy="75" r="${r}" stroke-width="20"/><circle class="ring-v" cx="75" cy="75" r="${r}" stroke="url(#rg)" stroke-width="20" stroke-dasharray="${L.toFixed(1)}" stroke-dashoffset="${L.toFixed(1)}" data-off="${off.toFixed(1)}"/></svg>
-    <div class="c"><div class="cc"><img class="pie-casa" src="${CASA_PIE}" alt=""><div class="pct num">${pct||0}%</div></div></div></div>`;
+    <circle class="ring-t1" cx="75" cy="75" r="${r}" stroke-width="20"/><circle class="ring-v" cx="75" cy="75" r="${r}" stroke="url(#rg)" stroke-width="20" stroke-dasharray="${L.toFixed(1)}" stroke-dashoffset="${off.toFixed(1)}"/></svg>
+    <div class="c"><div class="cc"><img class="pie-casa" src="${CASA_PIE}" alt=""><div class="pct num">${Math.round(RING.val*100)}%</div></div></div></div>`;
 }
-function animRings(){ requestAnimationFrame(()=>requestAnimationFrame(()=>document.querySelectorAll('.ring-v').forEach(c=>c.style.strokeDashoffset=c.dataset.off))); }
+function pintarRing(){
+  const c=$('.ring-v'); if(!c) return;
+  const L=2*Math.PI*60; c.setAttribute('stroke-dashoffset',(L*(1-Math.min(1,Math.max(0,RING.val)))).toFixed(1));
+  $('.rings .pct').textContent=Math.round(RING.val*100)+'%';
+  if(RING.intro && RING.meta) $('.meta-info .big').textContent=fmtM(RING.pozo*RING.val/RING.meta);
+}
+// Solo se anima si cambia el valor: la primera vez lento y con fanfarria, después un ajuste corto. Se pinta cuadro a cuadro para sobrevivir a los render().
+function animRings(){
+  if(!$('.ring-v') || RING.raf || RING.val===RING.meta) return;
+  if(matchMedia('(prefers-reduced-motion:reduce)').matches){ RING.val=RING.meta; RING.intro=false; pintarRing(); return; }
+  const de=RING.val, t0=performance.now(), dur=RING.intro?2800:900;
+  const paso=now=>{ const p=Math.min(1,(now-t0)/dur), e=p<.5?4*p*p*p:1-Math.pow(2-2*p,3)/2;
+    RING.val=de+(RING.meta-de)*e; pintarRing();
+    if(p<1){ RING.raf=requestAnimationFrame(paso); return; }
+    RING.val=RING.meta; RING.raf=0; pintarRing();
+    if(RING.intro){ RING.intro=false; fanfarria(); } else animRings(); };
+  RING.raf=requestAnimationFrame(paso);
+}
+function fanfarria(){
+  const r=$('.rings'); if(!r) return;
+  r.classList.add('fanfarria');
+  const b=r.getBoundingClientRect(), capa=document.createElement('div'), cols=['var(--azul)','var(--celeste)','var(--ok)','#FFC53D'];
+  capa.className='fanfarria-capa'; capa.setAttribute('aria-hidden','true'); capa.style.left=(b.left+b.width/2)+'px'; capa.style.top=(b.top+b.height/2)+'px';
+  let h='<i class="onda"></i>';
+  for(let i=0;i<22;i++) h+=`<i class="chispa${i%3?'':' r'}" style="--a:${Math.round(i*360/22+Math.random()*12)}deg;--d:${Math.round(95+Math.random()*55)}px;--g:${Math.round(Math.random()*360)}deg;--s:${5+i%4}px;--c:${cols[i%4]};--t:${Math.round(Math.random()*120)}ms"></i>`;
+  capa.innerHTML=h; document.body.appendChild(capa);
+  setTimeout(()=>capa.remove(),1600);
+}
 
 function mio(){
   const k=S.mesPriv;
